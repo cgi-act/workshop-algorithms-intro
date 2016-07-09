@@ -6,9 +6,15 @@ import java.util.List;
 import java.util.Set;
 
 public class MagicSquare {
-    public static void main(String[] args) {
-        final MagicSquare magicSquare = new MagicSquare();
-        magicSquare.solveUsingExhaustiveSearch();
+    private final int order;
+    private final int nbrOfIntegers;
+
+    public MagicSquare(final int order) {
+        if (order <= 2) {
+            throw new IllegalArgumentException("order should be greater than 2");
+        }
+        this.order = order;
+        nbrOfIntegers = order * order;
     }
 
     public void solveUsingExhaustiveSearch() {
@@ -16,7 +22,7 @@ public class MagicSquare {
     }
 
     private void solveUsingExhaustiveSearch(final List<Integer> chosenNumbers) {
-        if (chosenNumbers.size() == 9) {
+        if (chosenNumbers.size() == nbrOfIntegers) {
             checkForValidSolution(chosenNumbers);
             return;
         }
@@ -31,7 +37,7 @@ public class MagicSquare {
 
     private Set<Integer> buildNumbers(final List<Integer> chosenNumbers) {
         final Set<Integer> numbers = new LinkedHashSet<>();
-        for (int i = 1; i <= 9; i++) {
+        for (int i = 1; i <= nbrOfIntegers; i++) {
             numbers.add(i);
         }
         numbers.removeAll(chosenNumbers);
@@ -39,32 +45,43 @@ public class MagicSquare {
     }
 
     private void checkForValidSolution(final List<Integer> candidateSolution) {
-        // calculate sum of each row
-        final int sumRow1 = candidateSolution.get(0) + candidateSolution.get(1) + candidateSolution.get(2);
-        final int sumRow2 = candidateSolution.get(3) + candidateSolution.get(4) + candidateSolution.get(5);
-        final int sumRow3 = candidateSolution.get(6) + candidateSolution.get(7) + candidateSolution.get(8);
-
-        // calculate sum of each column
-        final int sumCol1 = candidateSolution.get(0) + candidateSolution.get(3) + candidateSolution.get(6);
-        final int sumCol2 = candidateSolution.get(1) + candidateSolution.get(4) + candidateSolution.get(7);
-        final int sumCol3 = candidateSolution.get(2) + candidateSolution.get(5) + candidateSolution.get(8);
-
-        // calculate sum of each corner-to-corner
-        final int sumCor1 = candidateSolution.get(0) + candidateSolution.get(4) + candidateSolution.get(8);
-        final int sumCor2 = candidateSolution.get(2) + candidateSolution.get(4) + candidateSolution.get(6);
-
-        if (isValid(sumRow1, sumRow2, sumRow3, sumCol1, sumCol2, sumCol3, sumCor1, sumCor2)) {
+        final List<Integer> sums = calculateSums(candidateSolution);
+        final boolean allSumsEqual = sums.stream().distinct().count() == 1;
+        if (allSumsEqual) {
             System.out.println(candidateSolution);
         }
     }
 
-    private boolean isValid(Integer... sums) {
-        final int sum = sums[0];
-        for (int i = 1; i < sums.length; i++) {
-            if (sum != sums[i]) {
-                return false;
+    private List<Integer> calculateSums(final List<Integer> candidateSolution) {
+        final List<Integer> sums = new ArrayList<>(order + order + 2);
+
+        int corSumTopLeftToBottomRight = 0;
+        int colSumTopRightToBottomLeft = 0;
+        for (int i = 1; i <= order; i++) {
+            int sumRow = 0;
+            int sumColumn = 0;
+            for (int y = 1; y <= order; y++) {
+                sumRow += candidateSolution.get(calculateListIndex(i, y));
+                sumColumn += candidateSolution.get(calculateListIndex(y, i));
             }
+            sums.add(sumRow);
+            sums.add(sumColumn);
+
+            corSumTopLeftToBottomRight += candidateSolution.get(calculateListIndex(i, i));
+            colSumTopRightToBottomLeft += candidateSolution.get(calculateListIndex(i, order - i + 1));
         }
-        return true;
+        sums.add(corSumTopLeftToBottomRight);
+        sums.add(colSumTopRightToBottomLeft);
+
+        return sums;
+    }
+
+    private int calculateListIndex(final int rowIndex, final int columnIndex) {
+        return (rowIndex - 1) * order + (columnIndex - 1);
+    }
+
+    public static void main(String[] args) {
+        final MagicSquare magicSquare = new MagicSquare(3);
+        magicSquare.solveUsingExhaustiveSearch();
     }
 }
