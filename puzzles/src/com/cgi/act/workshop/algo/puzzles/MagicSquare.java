@@ -45,16 +45,15 @@ public class MagicSquare {
     }
 
     private void checkForValidSolution(final List<Integer> candidateSolution) {
-        final List<Integer> sums = calculateSums(candidateSolution);
-        final boolean allSumsEqual = sums.stream().distinct().count() == 1;
-        if (allSumsEqual) {
+        if (isValid(candidateSolution)) {
+            System.out.println(candidateSolution);
+        } else {
             System.out.println(candidateSolution);
         }
     }
 
-    private List<Integer> calculateSums(final List<Integer> candidateSolution) {
-        final List<Integer> sums = new ArrayList<>(order + order + 2);
-
+    private boolean isValid(final List<Integer> candidateSolution) {
+        int firstSum = 0;
         int corSumTopLeftToBottomRight = 0;
         int colSumTopRightToBottomLeft = 0;
         for (int i = 1; i <= order; i++) {
@@ -64,16 +63,20 @@ public class MagicSquare {
                 sumRow += candidateSolution.get(calculateListIndex(i, y));
                 sumColumn += candidateSolution.get(calculateListIndex(y, i));
             }
-            sums.add(sumRow);
-            sums.add(sumColumn);
+
+            if (firstSum == 0) {
+                firstSum = sumRow;
+            }
+
+            if (firstSum != sumRow || firstSum != sumColumn) {
+                return false;
+            }
 
             corSumTopLeftToBottomRight += candidateSolution.get(calculateListIndex(i, i));
             colSumTopRightToBottomLeft += candidateSolution.get(calculateListIndex(i, order - i + 1));
         }
-        sums.add(corSumTopLeftToBottomRight);
-        sums.add(colSumTopRightToBottomLeft);
 
-        return sums;
+        return firstSum == corSumTopLeftToBottomRight && firstSum == colSumTopRightToBottomLeft;
     }
 
     private int calculateListIndex(final int rowIndex, final int columnIndex) {
