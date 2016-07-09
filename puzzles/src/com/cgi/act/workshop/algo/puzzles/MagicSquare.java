@@ -47,8 +47,6 @@ public class MagicSquare {
     private void checkForValidSolution(final List<Integer> candidateSolution) {
         if (isValid(candidateSolution)) {
             System.out.println(candidateSolution);
-        } else {
-            System.out.println(candidateSolution);
         }
     }
 
