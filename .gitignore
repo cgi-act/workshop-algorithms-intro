@@ -1,1 +1,6 @@
 # Created by .ignore support plugin (hsz.mobi)
+.DS_Store
+.idea/
+docs/docs.iml
+puzzles/.DS_Store
+puzzles/puzzles.iml
